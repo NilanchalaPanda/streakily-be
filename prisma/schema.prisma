@@ -8,10 +8,79 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  userName  String   @unique
-  name      String   @db.VarChar(255)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  published Boolean  @default(false)
+  id            Int          @id @unique @default(autoincrement())
+  userName      String       @unique
+  name          String       @db.VarChar(255)
+  email         String       @unique
+  isVerified    Boolean      @default(false)
+  avatarUrl     String?
+  totalPoints   Int?
+  longestSteaks Int?         @default(0)
+  challenges    Challenges[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  Accounts      Accounts?
+  Profile       Profile?
+}
+
+model Accounts {
+  id         Int      @id @default(autoincrement())
+  userId     Int      @unique
+  user       User     @relation(fields: [userId], references: [id])
+  github     Json
+  codeforces Json
+  leetcode   Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Profile {
+  id             Int      @id @default(autoincrement())
+  userId         Int      @unique
+  user           User     @relation(fields: [userId], references: [id])
+  bio            String?
+  personalSite   String?
+  twitterHandle  String?
+  behanceHandle  String?
+  linkedinHandle String?
+  collegeName    String?
+  isAlumni       Boolean  @default(false)
+  currCompany    String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Challenges {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  creator      User     @relation(fields: [userId], references: [id])
+  title        String
+  type         String
+  description  String
+  startingDate DateTime @default(now())
+  endingDate   DateTime
+  taskList     Tasks[]
+  points       Int      @default(0)
+  streaks      Int      @default(0)
+  status       STATUS   @default(ACTIVE)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Tasks {
+  id          Int        @id @default(autoincrement())
+  challengeId Int
+  date        DateTime   @default(now())
+  status      STATUS     @default(ACTIVE)
+  content     Json
+  points      Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  challenges  Challenges @relation(fields: [challengeId], references: [id])
+}
+
+enum STATUS {
+  ACTIVE
+  STALLED
+  COMPLETED
 }
