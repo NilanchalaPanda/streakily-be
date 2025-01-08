@@ -5,8 +5,16 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../secrets";
 import { ErrorCode } from "../expceptions/root";
 import { BadRequestsException } from "../expceptions/bad-request";
-import { UnprocessableEntity } from "../expceptions/validations";
 import { LoginSchema, SignUpSchema } from "../schema/user";
+import { NotFoundException } from "../expceptions/not-found";
+
+// Start module augmentation //
+declare module "express-serve-static-core" {
+  interface Request {
+    user: any;
+  }
+}
+// End module augmentation //
 
 export const Signup = async (
   req: Request,
@@ -53,12 +61,7 @@ export const Login = async (
   });
 
   if (!user) {
-    return next(
-      new BadRequestsException(
-        "User does not exist",
-        ErrorCode.USER_DOES_NOT_EXIST
-      )
-    );
+    new NotFoundException("User not found!", ErrorCode.USER_NOT_FOUND);
   }
 
   if (!compareSync(password, user?.password!)) {
@@ -73,4 +76,8 @@ export const Login = async (
   const token = jwt.sign({ userId: user?.id }, JWT_SECRET!);
 
   res.status(200).json({ message: "Success", user, token });
+};
+
+export const me = async (req: Request, res: Response, next: NextFunction) => {
+  res.json(req.user);
 };
