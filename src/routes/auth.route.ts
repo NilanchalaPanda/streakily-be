@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { Login, me, Signup } from "../controllers/auth";
+import { Login, me, Signup } from "../controllers/auth.controller";
 import { errorHandler } from "../error-handler";
 import authMiddleware from "../middlewares/auth";
 

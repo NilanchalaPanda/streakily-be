@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../secrets";
 import { ErrorCode } from "../expceptions/root";
 import { BadRequestsException } from "../expceptions/bad-request";
-import { LoginSchema, SignUpSchema } from "../schema/user";
+import { LoginSchema, SignUpSchema } from "../schema/user.schema";
 import { NotFoundException } from "../expceptions/not-found";
 
 // Start module augmentation //
