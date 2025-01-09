@@ -10,7 +10,7 @@ import { errorHandler } from "../error-handler";
 const accountRouter: Router = Router();
 
 // !IMP - Make this url dynamic like "/:userId/leetcode"
-accountRouter.get("/leetcode", errorHandler(verifyLeetCode));
+accountRouter.get("/:userId/leetcode", errorHandler(verifyLeetCode));
 accountRouter.get("/github", errorHandler(verifyGithubAuth));
 accountRouter.get("/oauth-callback", errorHandler(verifyGithubCallback));
 

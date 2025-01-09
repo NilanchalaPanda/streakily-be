@@ -7,6 +7,8 @@ import { LeetcodeSchema } from "../schema/account.schema";
 import { UnauthorizedException } from "../expceptions/unauthorized";
 import { GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET } from "../secrets";
 import axios from "axios";
+import { prisma } from "..";
+import { updateAccounts } from "../utils/updateAcconts";
 
 // start method augmentation //
 declare module "express-serve-static-core" {
@@ -21,8 +23,16 @@ export const verifyLeetCode = async (
   res: Response,
   next: NextFunction
 ) => {
-  LeetcodeSchema.parse(req.query);
-  const { username, uniqueCode } = req.query;
+  LeetcodeSchema.parse(req.body);
+  const userId = parseInt(req.params.userId);
+  const { username, uniqueCode } = req.body;
+
+  if (typeof username !== "string") {
+    throw new BadRequestsException(
+      "Invalid request - here",
+      ErrorCode.INCOMPLETE_DATA
+    );
+  }
 
   try {
     const data = await executeGraphQLQuery(leetcodeVerification, {
@@ -43,7 +53,18 @@ export const verifyLeetCode = async (
       throw new BadRequestsException("Invalid code", ErrorCode.INVALID_CODE);
     }
 
-    res.status(200).json({ message: "Account is verified", result: "success" });
+    console.log("heelo there");
+
+    const updatedAccount = await updateAccounts(userId, "leetcode", {
+      username,
+      isVerified: true,
+    });
+
+    res.status(200).json({
+      message: "LeetCode account verified",
+      account: updatedAccount,
+      result: "success",
+    });
   } catch (err) {
     next(
       new UnauthorizedException("Invalid request", ErrorCode.UNAUTHORZED_ERROR)

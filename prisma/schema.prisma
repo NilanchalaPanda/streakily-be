@@ -41,15 +41,12 @@ model Accounts {
 }
 
 model Profile {
-  id             Int     @id @default(autoincrement())
-  bio            String?
-  personalSite   String?
-  twitterHandle  String?
-  behanceHandle  String?
-  linkedinHandle String?
-  collegeName    String?
-  isAlumni       Boolean @default(false)
-  currCompany    String?
+  id          Int     @id @default(autoincrement())
+  bio         String
+  socials     Json? // [personalSite, twitterHandle, behanceHandle, linkedinHandle]
+  collegeName String?
+  isAlumni    Boolean @default(false)
+  currCompany String?
 
   // relations -
   userId Int  @unique
