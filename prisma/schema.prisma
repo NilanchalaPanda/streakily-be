@@ -8,72 +8,109 @@ datasource db {
 }
 
 model User {
-  id             Int     @id @unique @default(autoincrement())
-  userName       String  @unique
-  name           String  @db.VarChar(255)
-  email          String  @unique
-  password       String
-  isVerified     Boolean @default(false)
-  avatarUrl      String?
-  totalPoints    Int?
-  longestStreaks Int?    @default(0)
+  id       Int    @id @unique @default(autoincrement())
+  userName String @unique
+  name     String @db.VarChar(255)
+  email    String @unique
+  password String
 
-  Accounts   Accounts?
-  Profile    Profile?
+  accounts   Accounts?
+  profile    Profile?
+  settings   Settings?
   challenges Challenges[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([userName])
 }
 
 model Accounts {
-  id         Int   @id @default(autoincrement())
-  github     Json?
-  codeforces Json?
-  leetcode   Json?
+  id          Int   @id @default(autoincrement())
+  github      Json?
+  codeforces  Json?
+  leetcode    Json?
+  hankerRank  Json?
+  codeChef    Json?
+  atCoder     Json?
+  GeekForGeek Json?
 
-  // relations -
   userId Int  @unique
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Profile {
-  id          Int     @id @default(autoincrement())
-  bio         String
-  socials     Json? // [personalSite, twitterHandle, behanceHandle, linkedinHandle]
-  collegeName String?
-  isAlumni    Boolean @default(false)
-  currCompany String?
+  id             Int     @id @default(autoincrement())
+  bio            String  @db.Text
+  socials        Json? // [personalSite, twitterHandle, behanceHandle, linkedinHandle]
+  collegeName    String? @db.VarChar(255)
+  isAlumni       Boolean @default(false)
+  currCompany    String? @db.VarChar(255)
+  avatarUrl      String? @db.Text
+  totalPoints    Int     @default(0)
+  longestStreaks Int     @default(0)
+  isVerified     Boolean @default(false)
+  role           ROLE    @default(USER)
+  rank           RANK    @default(NEWBIE)
 
-  // relations -
   userId Int  @unique
-  user   User @relation(fields: [userId], references: [id])
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Settings {
+  id                 Int      @id @default(autoincrement())
+  isProfilePrivate   Boolean  @default(false)
+  showOnLeaderboard  Boolean  @default(true)
+  emailNotifications Boolean  @default(true)
+  pushNotifications  Boolean  @default(true)
+  challengeReminders Boolean  @default(true)
+  weeklyDigest       Boolean  @default(true)
+  theme              THEME    @default(SYSTEM)
+  language           LANGUAGE @default(ENGLISH)
+  timezone           String   @default("UTC")
+
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Challenges {
   id           Int      @id @default(autoincrement())
-  title        String
-  type         String
-  description  String
+  title        String   @db.VarChar(255)
+  type         String   @db.VarChar(50)
+  description  String   @db.Text
   startingDate DateTime @default(now())
   endingDate   DateTime
-  taskList     Tasks[]
   points       Int      @default(0)
   streaks      Int      @default(0)
   status       STATUS   @default(ACTIVE)
 
-  //relations -
+  taskList Tasks[]
+
   userId  Int
   creator User @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([startingDate, endingDate])
 }
 
 model Tasks {
@@ -83,16 +120,48 @@ model Tasks {
   content Json
   points  Int
 
-  // relations -
   challengeId Int
-  challenges  Challenges @relation(fields: [challengeId], references: [id])
+  challenges  Challenges @relation(fields: [challengeId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([challengeId])
+  @@index([status])
+  @@index([date])
 }
 
 enum STATUS {
   ACTIVE
   STALLED
   COMPLETED
+}
+
+enum ROLE {
+  USER
+  ADMIN
+}
+
+enum RANK {
+  NEWBIE
+  AMATEUR
+  PRO
+  EXPERT
+  MASTER
+  LEGEND
+}
+
+enum THEME {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum LANGUAGE {
+  ENGLISH
+  SPANISH
+  FRENCH
+  GERMAN
+  CHINESE
+  JAPANESE
 }

@@ -1,17 +1,24 @@
 import { Router } from "express";
-import authMiddleware from "../middlewares/auth";
 import {
   verifyGithubAuth,
   verifyGithubCallback,
   verifyLeetCode,
-} from "../controllers/accounts.controller";
+} from "../controllers/account.controller";
 import { errorHandler } from "../error-handler";
+import authMiddleware from "../middlewares/auth";
 
 const accountRouter: Router = Router();
 
-// !IMP - Make this url dynamic like "/:userId/leetcode"
-accountRouter.get("/:userId/leetcode", errorHandler(verifyLeetCode));
+accountRouter.get(
+  "/:userId/leetcode",
+  [authMiddleware],
+  errorHandler(verifyLeetCode)
+);
 accountRouter.get("/github", errorHandler(verifyGithubAuth));
-accountRouter.get("/oauth-callback", errorHandler(verifyGithubCallback));
+accountRouter.get(
+  "/oauth-callback",
+  [authMiddleware],
+  errorHandler(verifyGithubCallback)
+);
 
 export default accountRouter;

@@ -24,7 +24,11 @@ export const addProfileDetails = async (req: Request, res: Response) => {
         collegeName: data.collegeName,
         isAlumni: data.isAlumni,
         currCompany: data.currCompany,
-        userId: data.userId,
+        avatarUrl: data.avatarUrl,
+        isVerified: data.isVerified,
+        user: {
+          connect: { id: userId },
+        },
       },
     });
 
@@ -58,6 +62,8 @@ export const updateProfileDetails = async (req: Request, res: Response) => {
         collegeName: data.collegeName,
         isAlumni: data.isAlumni,
         currCompany: data.currCompany,
+        avatarUrl: data.avatarUrl,
+        isVerified: data.isVerified,
       },
     });
 
