@@ -92,7 +92,7 @@ model Settings {
 model Challenges {
   id           Int      @id @default(autoincrement())
   title        String   @db.VarChar(255)
-  type         String   @db.VarChar(50) // [#30days, #100days, #365days, #weekly, #monthly, #DSA, #CP, #WebDev, #AppDev, #ML, #AI, #CyberSec, #Design, #UIUX, #GameDev, #OpenSource]
+  type         String   @db.VarChar(50) // [30days, 45days, 60days, 100days, Daily, Weekly, Monthly]
   description  String   @db.Text
   startingDate DateTime @default(now())
   endingDate   DateTime
@@ -100,7 +100,13 @@ model Challenges {
   streaks      Int      @default(0)
   status       STATUS   @default(ACTIVE)
 
-  taskList Tasks[]
+  // Break tracking
+  totalBreakDays  Int @default(0)
+  remainingBreaks Int @default(0)
+
+  // Relations
+  platformTargets PlatformTarget[]
+  taskList        Tasks[]
 
   userId  Int
   creator User @relation(fields: [userId], references: [id])
@@ -113,12 +119,29 @@ model Challenges {
   @@index([startingDate, endingDate])
 }
 
+model PlatformTarget {
+  id              Int    @id @default(autoincrement())
+  platform        String
+  targetQuestions Int
+  solvedQuestions Int    @default(0)
+
+  challengeId Int
+  challenge   Challenges @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([challengeId, platform])
+  @@index([challengeId])
+}
+
 model Tasks {
-  id      Int      @id @default(autoincrement())
-  date    DateTime @default(now())
-  status  STATUS   @default(ACTIVE)
-  content Json
-  points  Int
+  id         Int      @id @default(autoincrement())
+  date       DateTime @default(now())
+  status     STATUS   @default(ACTIVE)
+  isBreakDay Boolean  @default(false)
+  content    Json // Will contain either platform progress or break day info
+  points     Int      @default(0)
 
   challengeId Int
   challenges  Challenges @relation(fields: [challengeId], references: [id], onDelete: Cascade)
@@ -126,9 +149,17 @@ model Tasks {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([challengeId, date]) // Ensures one task per day per challenge
   @@index([challengeId])
   @@index([status])
   @@index([date])
+}
+
+// Add new enum for break status
+enum BREAK_STATUS {
+  SCHEDULED
+  TAKEN
+  CANCELLED
 }
 
 enum STATUS {

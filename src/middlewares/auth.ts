@@ -4,9 +4,10 @@ import { ErrorCode } from "../expceptions/root";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../secrets";
 import { prisma } from "..";
+import { customRequest } from "../types/express";
 
 const authMiddleware = async (
-  req: Request,
+  req: customRequest,
   res: Response,
   next: NextFunction
 ) => {
@@ -42,7 +43,8 @@ const authMiddleware = async (
     }
 
     //5. Attach user to currRequest object.
-    req.user = user!;
+    req.currentUser = user!;
+
     next();
   } catch (error) {
     next(
