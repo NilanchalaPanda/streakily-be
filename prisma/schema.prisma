@@ -92,7 +92,7 @@ model Settings {
 model Challenges {
   id           Int      @id @default(autoincrement())
   title        String   @db.VarChar(255)
-  type         String   @db.VarChar(50)
+  type         String   @db.VarChar(50) // [#30days, #100days, #365days, #weekly, #monthly, #DSA, #CP, #WebDev, #AppDev, #ML, #AI, #CyberSec, #Design, #UIUX, #GameDev, #OpenSource]
   description  String   @db.Text
   startingDate DateTime @default(now())
   endingDate   DateTime
